@@ -19,6 +19,15 @@ class ForumSpider(scrapy.Spider):
         for url in postLinks:
             yield response.follow(url, callback=self.postParse)
 
+        # Navigate to next page
+        next_page = response.css("div.pages-and-menu a::attr(href)").get()
+
+        if next_page is not None:
+            yield response.follow(next_page, callback=self.parse)
+
+
+
+
     def postParse(self, response):
         # pageTitle = response.css("title::text").get()
 
