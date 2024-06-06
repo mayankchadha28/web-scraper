@@ -3,19 +3,24 @@ import scrapy
 
 class ForumSpider(scrapy.Spider):
     name="forum"
-
-    start_urls = ["https://www.sane.org.uk/how-we-help/sane-community/support-forum/topic/forum-feedback-suggestions"]
-
-    # def start_requests(self):
-    #     urls = [
-    #         "https://www.sane.org.uk/how-we-help/sane-community/support-forum/topic/forum-feedback-suggestions"
-    #     ]
-
-    #     for url in urls:
-    #         yield scrapy.Request(url, callback=self.parse)
+    # linkCount = None
+    start_urls = ["https://www.sane.org.uk/how-we-help/sane-community/support-forum/forum/family-friends-and-carers"]
 
     def parse(self, response):
-        pageTitle = response.css("title::text").get()
+        postLinks = response.css("div.content-container div.content-element div.topic-name > a::attr(href)").getall()
+        
+        linkCount = len(postLinks)
+
+        # yield {
+        #         "topicCount": linkCount,
+        #     }
+        
+
+        for url in postLinks:
+            yield response.follow(url, callback=self.postParse)
+
+    def postParse(self, response):
+        # pageTitle = response.css("title::text").get()
 
         #Context
         mainTitle = response.css("h1.main-title::text").get()
@@ -25,12 +30,13 @@ class ForumSpider(scrapy.Spider):
 
         for reply in repliesList:
             paraList = reply.css("div.post-message p::text").getall()
-            # para = 
+            
             message = " ".join(paraList)
             message = paraList
             yield {
                 "title": mainTitle,
-                "response": message
+                "response": message,
+                # "linkCount": linkCount
             }
 
 

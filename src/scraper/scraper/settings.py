@@ -92,5 +92,5 @@ REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
-# FEED_FORMAT = 'csv'
-# FEED_URI = 'output.csv'
+FEED_FORMAT = 'csv'
+FEED_URI = 'output.csv'
