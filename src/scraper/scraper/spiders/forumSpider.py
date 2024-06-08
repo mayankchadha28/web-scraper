@@ -46,11 +46,4 @@ class ForumSpider(scrapy.Spider):
                 "title": mainTitle,
                 "response": message,
                 # "linkCount": linkCount
-            }
-
-
-
-
-
-
-    
+            }    
