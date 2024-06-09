@@ -7,6 +7,8 @@ class PsychForumSpider(scrapy.Spider):
     # linkCount = None
     start_urls = ["https://www.psychforums.com/"]
 
+    # link_withfragment = []
+
     def parse(self, response):
         postLinks = response.css("div.post div.postbody h3 > a::attr(href)").getall()
         
@@ -14,7 +16,10 @@ class PsychForumSpider(scrapy.Spider):
         
         #follow each of the links 
         for url in postLinks:
-            yield response.follow(url, callback=self.postParse)
+            parsed_url = urlparse(url)
+            fragment = parsed_url.fragment
+
+            yield response.follow(url, callback=self.postParse, meta={'fragment': fragment})
 
         # # Navigate to next page
         # next_page = response.css("div.pages-and-menu a::attr(href)").get()
@@ -22,28 +27,25 @@ class PsychForumSpider(scrapy.Spider):
         # if next_page is not None:
         #     yield response.follow(next_page, callback=self.parse)
 
-
-
-
     def postParse(self, response):
-        # pageTitle = response.css("title::text").get()
-        parsed_url = urlparse(response.url)
-        fragment = parsed_url.fragment
+        
+        fragment = response.meta.get('fragment')
 
         #Title
         mainTitle = response.css("h1 > a::text").get()
 
         #Post
-        yield {
-            "title": mainTitle,
-            "fragment": response.url
-        }
-        # postContext = response.css(f"div #{fragment} div.postbody div.content::text").getall()
-
         # yield {
         #     "title": mainTitle,
-        #     "post": postContext
+        #     "fragment": fragment
         # }
+
+        postContext = response.css(f"div#{fragment} div.postbody div.content::text").getall()
+
+        yield {
+            "title": mainTitle,
+            "post": postContext
+        }
 
         #Replies
         # repliesList = response.css("div.post-element")
