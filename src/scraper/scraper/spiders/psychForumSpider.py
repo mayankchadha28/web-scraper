@@ -7,6 +7,7 @@ class PsychForumSpider(scrapy.Spider):
     # linkCount = None
     start_urls = ["https://www.psychforums.com/"]
 
+    index=0
     # link_withfragment = []
 
     def parse(self, response):
@@ -21,11 +22,23 @@ class PsychForumSpider(scrapy.Spider):
 
             yield response.follow(url, callback=self.postParse, meta={'fragment': fragment})
 
-        # # Navigate to next page
-        # next_page = response.css("div.pages-and-menu a::attr(href)").get()
+        # Navigate to next page
+        
+        next_page = response.css("div.pagination > span > a::attr(href)")[self.index + 1].get()
+
+        if next_page is not None:
+            self.index += 1
+            yield response.follow(next_page, callback=self.parse)
+
+        
+
 
         # if next_page is not None:
         #     yield response.follow(next_page, callback=self.parse)
+
+        # yield {
+        #     "link-count": linkCount
+        # }
 
     def postParse(self, response):
         
@@ -34,30 +47,17 @@ class PsychForumSpider(scrapy.Spider):
         #Title
         mainTitle = response.css("h1 > a::text").get()
 
-        #Post
-        # yield {
-        #     "title": mainTitle,
-        #     "fragment": fragment
-        # }
-
         postContext = response.css(f"div#{fragment} div.postbody div.content::text").getall()
 
-        yield {
-            "title": mainTitle,
-            "post": postContext
-        }
+        replies = response.css("div.post::attr(id)").getall()
+        if fragment in replies:
+            replies.remove(fragment)
 
-        #Replies
-        # repliesList = response.css("div.post-element")
-
-        # for reply in repliesList:
-        #     paraList = reply.css("div.post-message p::text").getall()
+        for reply in replies:
+            element = response.css(f"div#{reply} div.postbody div.content::text").getall()
             
-        #     message = " ".join(paraList)
-        #     message = paraList
-        #     yield {
-        #         "title": mainTitle,
-        #         "response": message,
-        #         # "linkCount": linkCount
-        #     }
-
+            yield {
+                "title": mainTitle,
+                "post": postContext,
+                "reply": element
+            }
