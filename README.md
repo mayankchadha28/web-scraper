@@ -21,7 +21,7 @@ Replace [SpiderName] with the name of any spider available in the Spiders folder
 
 ## Configuration
 
-You can configure the output format and file location in the settings.py file. Here are the relevant settings:
+You can configure the output format and file location in the -settings.py- file. Here are the relevant settings:
 
 ```py
 
